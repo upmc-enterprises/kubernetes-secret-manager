@@ -1,0 +1,6 @@
+apiVersion: "enterprises.upmc.com/v1"
+kind: "Customsecrets"
+metadata:
+  name: "sample-app"
+spec:
+  policy: "R/W"
