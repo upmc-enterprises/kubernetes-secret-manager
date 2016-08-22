@@ -88,9 +88,11 @@ func processCustomSecretEvent(c CustomSecretEvent, db *bolt.DB) error {
 }
 
 func deleteCustomSecret(c CustomSecret, db *bolt.DB) error {
-	return nil
+	log.Printf("Deleting Kubernetes CustomSecret secret: %s", c.Metadata["Name"])
+	return deleteKubernetesSecret(c.Metadata["Name"])
 }
 
 func processCustomSecret(c CustomSecret, db *bolt.DB) error {
+	log.Println("[Processor] Add Custom Secret!")
 	return nil
 }

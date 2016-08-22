@@ -16,17 +16,17 @@ import (
 )
 
 var (
-	dataDir      = "/var/lib/vault-manager"
-	vaultToken   = "41b108e8-dcac-3e6d-2980-d0ddae5e3696"
-	vaultURL     = "http://127.0.0.1:8200"
-	syncInterval = 120
+	dataDir          = "/var/lib/vault-manager"
+	vaultToken       = "41b108e8-dcac-3e6d-2980-d0ddae5e3696"
+	vaultURL         = "http://127.0.0.1:8200"
+	syncIntervalSecs = 5
 )
 
 func main() {
 	flag.StringVar(&dataDir, "data-dir", dataDir, "Data directory path.")
 	flag.StringVar(&vaultToken, "vault-token", vaultToken, "Token to access vault.")
 	flag.StringVar(&vaultURL, "vault-url", vaultURL, "URL to access vault.")
-	flag.IntVar(&syncInterval, "sync-interval", syncInterval, "Sync interval in seconds.")
+	flag.IntVar(&syncIntervalSecs, "sync-interval", syncIntervalSecs, "Sync interval in seconds.")
 	flag.Parse()
 
 	log.Println("Starting Kubernetes Vault Controller...")
@@ -72,7 +72,7 @@ func main() {
 	// definitions are implemented with a Vault secret and a Kubernetes secret.
 	log.Println("Starting reconciliation loop.")
 	wg.Add(1)
-	reconcileCustomSecrets(syncInterval, db, doneChan, &wg)
+	reconcileCustomSecrets(syncIntervalSecs, db, doneChan, &wg)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)

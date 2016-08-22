@@ -3,4 +3,5 @@ kind: "Customsecrets"
 metadata:
   name: "sample-app"
 spec:
+  secret: "db-credentials"
   policy: "R/W"
