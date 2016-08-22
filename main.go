@@ -51,40 +51,28 @@ func main() {
 		log.Fatal(err)
 	}
 
-	vaultClient, _ := newVaultClient(vaultToken, vaultURL)
-
-	err = vaultClient.writeVaultSecret("secret/foo",
-		map[string]interface{}{
-			"name":  "steve",
-			"level": "kubernaut",
-		})
-
-	secret, err := vaultClient.readVaultSecret("secret/foo")
-	log.Println("Got secret: ", secret)
-
 	log.Println("Kubernetes Vault Controller started successfully.")
 
 	// Process all Certificates definitions during the startup process.
-	// err = syncCertificates(db)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	err = syncCustomSecrets(db)
+	if err != nil {
+		log.Println(err)
+	}
 
 	doneChan := make(chan struct{})
 	var wg sync.WaitGroup
 
-	// Watch for events that add, modify, or delete Certificate definitions and
+	// Watch for events that add, modify, or delete CustomSecret definitions and
 	// process them asynchronously.
-	// log.Println("Watching for certificate events.")
-	// wg.Add(1)
-	// watchCertificateEvents(db, doneChan, &wg)
-	//
-	// // Start the certificate reconciler that will ensure all Certificate
-	// // definitions are backed by a LetsEncrypt certificate and a Kubernetes
-	// // TLS secret.
-	// log.Println("Starting reconciliation loop.")
-	// wg.Add(1)
-	// reconcileCertificates(syncInterval, db, doneChan, &wg)
+	log.Println("Watching for custom secret events.")
+	wg.Add(1)
+	watchCustomSecretsEvents(db, doneChan, &wg)
+
+	// Start the custom secret reconciler that will ensure all Custom Secret
+	// definitions are implemented with a Vault secret and a Kubernetes secret.
+	log.Println("Starting reconciliation loop.")
+	wg.Add(1)
+	reconcileCustomSecrets(syncInterval, db, doneChan, &wg)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
