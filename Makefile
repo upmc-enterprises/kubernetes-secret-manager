@@ -9,7 +9,7 @@ PREFIX = stevesloka
 all: container
 
 build: main.go
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -installsuffix cgo -o kubernetes-vault-controller --ldflags '-w' ./main.go
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -installsuffix cgo -o kubernetes-vault-controller --ldflags '-w' ./main.go ./vault.go ./kubernetes.go
 
 container: build
 	docker build -t $(PREFIX)/kubernetes-vault-controller:$(TAG) .

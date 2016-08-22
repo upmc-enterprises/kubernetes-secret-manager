@@ -51,30 +51,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	client, _ := newVaultClient(vaultToken, vaultURL)
-	c := client.Logical()
+	vaultClient, _ := newVaultClient(vaultToken, vaultURL)
 
-	// Write test secret
-	_, err = c.Write("secret/foo",
+	err = vaultClient.writeVaultSecret("secret/foo",
 		map[string]interface{}{
 			"name":  "steve",
 			"level": "kubernaut",
 		})
 
-	if err != nil {
-		log.Println("ERROR writing secret: ", err)
-	} else {
-		log.Println("WROTE Secret!")
-	}
-
-	// Read sample secret
-	readSecret, err := c.Read("secret/foo")
-
-	if err != nil {
-		log.Println("ERROR getting secret: ", err)
-	} else {
-		log.Println("Got secret: ", readSecret)
-	}
+	secret, err := vaultClient.readVaultSecret("secret/foo")
+	log.Println("Got secret: ", secret)
 
 	log.Println("Kubernetes Vault Controller started successfully.")
 
