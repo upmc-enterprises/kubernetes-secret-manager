@@ -13,7 +13,7 @@ spec:
         app: vault
     spec:
       containers:
-      - image: vault
+      - image: stevesloka/vault
         imagePullPolicy: Always
         name: vault
         ports:
@@ -29,6 +29,7 @@ metadata:
   name: vault
   labels:
     app: vault
+  namespace: vault
 spec:
   ports:
     - name: vault

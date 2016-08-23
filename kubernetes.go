@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+// TODO: Handle multiple namespaces!
+
 var (
 	apiHost                    = "http://127.0.0.1:8001"
 	customSecretsEndpoint      = "/apis/enterprises.upmc.com/v1/namespaces/default/customsecretses"
@@ -139,13 +141,14 @@ func syncKubernetesSecret(secretName, username, password string) error {
 	data := make(map[string]string)
 	data["username"] = base64.StdEncoding.EncodeToString([]byte(username))
 	data["password"] = base64.StdEncoding.EncodeToString([]byte(password))
+	//data["ttlExpire"] = time.Now().Add(time.Minute * 2).String()
 
 	secret := &Secret{
 		ApiVersion: "v1",
 		Data:       data,
 		Kind:       "Secret",
 		Metadata:   metadata,
-		Type:       "kubernetes.io/Opaque",
+		Type:       "Opaque",
 	}
 
 	resp, err := http.Get(apiHost + secretsEndpoint + "/" + secretName)

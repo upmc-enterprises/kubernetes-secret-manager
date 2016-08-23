@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"sync"
 	"time"
@@ -88,11 +89,24 @@ func processCustomSecretEvent(c CustomSecretEvent, db *bolt.DB) error {
 }
 
 func deleteCustomSecret(c CustomSecret, db *bolt.DB) error {
-	log.Printf("Deleting Kubernetes CustomSecret secret: %s", c.Metadata["Name"])
-	return deleteKubernetesSecret(c.Metadata["Name"])
+	log.Printf("Deleting Kubernetes CustomSecret secret: %s", c.Metadata["name"])
+	return deleteKubernetesSecret(c.Metadata["name"])
 }
 
 func processCustomSecret(c CustomSecret, db *bolt.DB) error {
-	log.Println("[Processor] Add Custom Secret!")
+
+	// accessor token is unique & safe reference to actual token
+	// specific to each db user / password combo
+
+	// 1. lookup the accessor token in local db
+	// 2. check the ttl (if close to expiring then renew / revoke)
+
+	// FAKE!!
+	err := syncKubernetesSecret(c.Metadata["name"], "mycooluser", "mycoolerPa$$w0rd")
+
+	if err != nil {
+		return errors.New("Error creating Kubernetes secret: " + err.Error())
+	}
+
 	return nil
 }
