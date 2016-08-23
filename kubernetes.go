@@ -21,32 +21,37 @@ var (
 	secretsEndpoint            = "/api/v1/namespaces/default/secrets"
 )
 
+// CustomSecretEvent stores when a secret needs created
 type CustomSecretEvent struct {
 	Type   string       `json:"type"`
 	Object CustomSecret `json:"object"`
 }
 
+// CustomSecret represents a custom secret object
 type CustomSecret struct {
-	ApiVersion string            `json:"apiVersion"`
+	APIVersion string            `json:"apiVersion"`
 	Kind       string            `json:"kind"`
 	Metadata   map[string]string `json:"metadata"`
 	Spec       CustomSecretSpec  `json:"spec"`
 }
 
+// CustomSecretSpec represents the custom data of the object
 type CustomSecretSpec struct {
 	Policy string `json:"policy"`
 }
 
+// CustomSecretList represents a list of CustomSecrets
 type CustomSecretList struct {
-	ApiVersion string            `json:"apiVersion"`
+	APIVersion string            `json:"apiVersion"`
 	Kind       string            `json:"kind"`
 	Metadata   map[string]string `json:"metadata"`
 	Items      []CustomSecret    `json:"items"`
 }
 
+// Secret represents a Kubernetes secret type
 type Secret struct {
 	Kind       string            `json:"kind"`
-	ApiVersion string            `json:"apiVersion"`
+	APIVersion string            `json:"apiVersion"`
 	Metadata   map[string]string `json:"metadata"`
 	Data       map[string]string `json:"data"`
 	Type       string            `json:"type"`
@@ -144,7 +149,7 @@ func syncKubernetesSecret(secretName, username, password string) error {
 	//data["ttlExpire"] = time.Now().Add(time.Minute * 2).String()
 
 	secret := &Secret{
-		ApiVersion: "v1",
+		APIVersion: "v1",
 		Data:       data,
 		Kind:       "Secret",
 		Metadata:   metadata,
@@ -172,7 +177,7 @@ func syncKubernetesSecret(secretName, username, password string) error {
 		if currentSecret.Data["username"] != secret.Data["username"] || currentSecret.Data["password"] != secret.Data["password"] {
 			log.Printf("%s secret out of sync.", secretName)
 			currentSecret.Data = secret.Data
-			b := make([]byte, 0)
+			var b []byte
 			body := bytes.NewBuffer(b)
 			err := json.NewEncoder(body).Encode(currentSecret)
 			if err != nil {
@@ -183,12 +188,12 @@ func syncKubernetesSecret(secretName, username, password string) error {
 				return err
 			}
 			req.Header.Add("Content-Type", "application/json")
-			resp, err := http.DefaultClient.Do(req)
+			respSecret, err := http.DefaultClient.Do(req)
 			if err != nil {
 				return err
 			}
 			if resp.StatusCode != 200 {
-				return errors.New("Updating secret failed:" + resp.Status)
+				return errors.New("Updating secret failed:" + respSecret.Status)
 			}
 			log.Printf("Syncing %s secret complete.", secretName)
 		}
