@@ -1,7 +1,7 @@
 apiVersion: "enterprises.upmc.com/v1"
 kind: "Customsecrets"
 metadata:
-  name: "sample-app"
+  name: "app-ro"
 spec:
   secret: "db-readonly-credentials"
   policy: "mysql/creds/readonly"
@@ -11,7 +11,7 @@ spec:
 apiVersion: "enterprises.upmc.com/v1"
 kind: "Customsecrets"
 metadata:
-  name: "sample-app2"
+  name: "app-rw"
 spec:
   secret: "db-full-credentials"
   policy: "mysql/creds/readonly"
