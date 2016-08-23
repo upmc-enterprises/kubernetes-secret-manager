@@ -1,4 +1,4 @@
-path "secret/myapp/*" {
+path "secret/*" {
   policy = "read"
 }
 
@@ -10,15 +10,14 @@ path "auth/token/create-orphan*" {
   policy = "write"
 }
 
-path "sys/renew/mysql/creds/readonly/*" {
+path "sys/renew/mysql/creds/*/*" {
   policy = "write"
 }
 
-
-path "mysql/creds/readonly" {
+path "mysql/creds/*" {
   policy = "read"
 }
 
-path "mysql/roles/readonly" {
+path "mysql/roles/*" {
   policy = "read"
 }

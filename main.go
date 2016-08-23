@@ -17,7 +17,7 @@ import (
 
 var (
 	dataDir          = "/var/lib/vault-manager"
-	vaultToken       = "26990272-dd4d-1ac5-4c51-886b2c9c8829"
+	vaultToken       = "98fe656b-2eb2-d4ec-84dc-50d872953f0d"
 	vaultURL         = "http://127.0.0.1:8200"
 	syncIntervalSecs = 5
 	vltClient        *vaultClient
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		_, err = tx.CreateBucketIfNotExists([]byte("Accounts"))
+		_, err = tx.CreateBucketIfNotExists([]byte("Secrets"))
 		if err != nil {
 			return fmt.Errorf("create bucket: %s", err)
 		}

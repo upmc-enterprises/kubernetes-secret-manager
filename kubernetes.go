@@ -37,8 +37,10 @@ type CustomSecret struct {
 
 // CustomSecretSpec represents the custom data of the object
 type CustomSecretSpec struct {
-	Policy string `json:"policy"`
-	Secret string `json:"secret"`
+	Policy        string `json:"policy"`
+	Secret        string `json:"secret"`
+	LeaseDuration int
+	LeaseID       string
 }
 
 // CustomSecretList represents a list of CustomSecrets
@@ -147,7 +149,6 @@ func syncKubernetesSecret(secretName, username, password string) error {
 	data := make(map[string]string)
 	data["username"] = base64.StdEncoding.EncodeToString([]byte(username))
 	data["password"] = base64.StdEncoding.EncodeToString([]byte(password))
-	//data["ttlExpire"] = time.Now().Add(time.Minute * 2).String()
 
 	secret := &Secret{
 		ApiVersion: "v1",
@@ -176,7 +177,11 @@ func syncKubernetesSecret(secretName, username, password string) error {
 		}
 
 		if currentSecret.Data["username"] != secret.Data["username"] || currentSecret.Data["password"] != secret.Data["password"] {
+
 			log.Printf("%s secret out of sync.", secretName)
+			log.Printf("%s", currentSecret.Data["username"])
+			log.Printf("%s", secret.Data["username"])
+
 			currentSecret.Data = secret.Data
 			var b []byte
 			body := bytes.NewBuffer(b)

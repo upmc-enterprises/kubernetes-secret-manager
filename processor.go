@@ -89,11 +89,20 @@ func processCustomSecretEvent(c CustomSecretEvent, db *bolt.DB) error {
 }
 
 func deleteCustomSecret(c CustomSecret, db *bolt.DB) error {
-	log.Printf("Deleting Kubernetes CustomSecret secret: %s", c.Metadata["name"])
-	return deleteKubernetesSecret(c.Metadata["name"])
+	deleteSecretLocal(c.Spec.Secret, db)
+	log.Printf("Deleting Kubernetes CustomSecret secret: %s", c.Spec.Secret)
+	return deleteKubernetesSecret(c.Spec.Secret)
 }
 
 func processCustomSecret(c CustomSecret, db *bolt.DB) error {
+
+	//See if existing already
+	foundSecret, _ := getSecretLocal(c.Spec.Secret, db)
+
+	if foundSecret != nil {
+		log.Println("Cert found existing! TTL: ", "")
+		return nil
+	}
 
 	// Request credentials from user
 	secret, err := vltClient.readVaultSecret(c.Spec.Policy)
@@ -105,12 +114,17 @@ func processCustomSecret(c CustomSecret, db *bolt.DB) error {
 	// Pull out user/password
 	username, _ := secret.Data["username"].(string)
 	password, _ := secret.Data["password"].(string)
+	c.Spec.LeaseDuration = secret.LeaseDuration
+	c.Spec.LeaseID = secret.LeaseID
 
 	err = syncKubernetesSecret(c.Spec.Secret, username, password)
 
 	if err != nil {
 		return errors.New("[Processor] Error creating Kubernetes secret: " + err.Error())
 	}
+
+	// Persist
+	persistSecretLocal(c.Spec.Secret, c.Spec, db)
 
 	return nil
 }

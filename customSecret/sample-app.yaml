@@ -3,5 +3,15 @@ kind: "Customsecrets"
 metadata:
   name: "sample-app"
 spec:
-  secret: "db-credentials"
+  secret: "db-readonly-credentials"
+  policy: "mysql/creds/readonly"
+
+---
+
+apiVersion: "enterprises.upmc.com/v1"
+kind: "Customsecrets"
+metadata:
+  name: "sample-app2"
+spec:
+  secret: "db-full-credentials"
   policy: "mysql/creds/readonly"
