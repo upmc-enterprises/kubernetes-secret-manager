@@ -1,10 +1,7 @@
 FROM vault:0.6.1
 MAINTAINER Steve Sloka <steve@stevesloka.com>
 
-ADD myapp.hcl /root/myapp.hcl
-ADD vault.conf /root/vault.conf
-
-ADD ./startup.sh /root/startup.sh
-RUN chmod +x /root/startup.sh
-
-ENTRYPOINT ["/root/startup.sh"]
+ADD myapp.hcl /etc/myapp.hcl
+ADD conf/local.json /vault/config/local.json
+ADD ./setup-vault.sh /usr/local/bin/setup-vault.sh
+RUN chmod +x /usr/local/bin/setup-vault.sh

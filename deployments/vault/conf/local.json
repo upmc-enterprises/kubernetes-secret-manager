@@ -1,4 +1,4 @@
 listener "tcp" {
-  address = "0.0.0.0:8200"
+  address = "0.0.0.0:9000"
   tls_disable = 1
 }
