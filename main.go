@@ -17,9 +17,10 @@ import (
 
 var (
 	dataDir          = "/var/lib/vault-manager"
-	vaultToken       = "41b108e8-dcac-3e6d-2980-d0ddae5e3696"
+	vaultToken       = "26990272-dd4d-1ac5-4c51-886b2c9c8829"
 	vaultURL         = "http://127.0.0.1:8200"
 	syncIntervalSecs = 5
+	vltClient        *vaultClient
 )
 
 func main() {
@@ -49,6 +50,13 @@ func main() {
 	})
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Init vault client
+	vltClient, err = newVaultClient(vaultToken, vaultURL)
+
+	if err != nil {
+		log.Println("Could not create Vault Client! ", err)
 	}
 
 	log.Println("Kubernetes Vault Controller started successfully.")

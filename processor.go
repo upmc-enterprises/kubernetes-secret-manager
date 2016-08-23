@@ -62,15 +62,15 @@ func syncCustomSecrets(db *bolt.DB) error {
 	}
 
 	var wg sync.WaitGroup
-	for _, cert := range customSecrets {
+	for _, secret := range customSecrets {
 		wg.Add(1)
-		go func(cert CustomSecret) {
+		go func(secret CustomSecret) {
 			defer wg.Done()
-			err := processCustomSecret(cert, db)
+			err := processCustomSecret(secret, db)
 			if err != nil {
 				log.Println(err)
 			}
-		}(cert)
+		}(secret)
 	}
 	wg.Wait()
 	return nil
@@ -95,17 +95,21 @@ func deleteCustomSecret(c CustomSecret, db *bolt.DB) error {
 
 func processCustomSecret(c CustomSecret, db *bolt.DB) error {
 
-	// accessor token is unique & safe reference to actual token
-	// specific to each db user / password combo
-
-	// 1. lookup the accessor token in local db
-	// 2. check the ttl (if close to expiring then renew / revoke)
-
-	// FAKE!!
-	err := syncKubernetesSecret(c.Metadata["name"], "mycooluser", "mycoolerPa$$w0rd")
+	// Request credentials from user
+	secret, err := vltClient.readVaultSecret(c.Spec.Policy)
 
 	if err != nil {
-		return errors.New("Error creating Kubernetes secret: " + err.Error())
+		return errors.New("[Processor] Error getting secret from Vault: " + err.Error())
+	}
+
+	// Pull out user/password
+	username, _ := secret.Data["username"].(string)
+	password, _ := secret.Data["password"].(string)
+
+	err = syncKubernetesSecret(c.Spec.Secret, username, password)
+
+	if err != nil {
+		return errors.New("[Processor] Error creating Kubernetes secret: " + err.Error())
 	}
 
 	return nil

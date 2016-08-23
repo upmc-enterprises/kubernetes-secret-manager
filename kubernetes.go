@@ -38,11 +38,12 @@ type CustomSecret struct {
 // CustomSecretSpec represents the custom data of the object
 type CustomSecretSpec struct {
 	Policy string `json:"policy"`
+	Secret string `json:"secret"`
 }
 
 // CustomSecretList represents a list of CustomSecrets
 type CustomSecretList struct {
-	APIVersion string            `json:"apiVersion"`
+	ApiVersion string            `json:"apiVersion"`
 	Kind       string            `json:"kind"`
 	Metadata   map[string]string `json:"metadata"`
 	Items      []CustomSecret    `json:"items"`
@@ -51,7 +52,7 @@ type CustomSecretList struct {
 // Secret represents a Kubernetes secret type
 type Secret struct {
 	Kind       string            `json:"kind"`
-	APIVersion string            `json:"apiVersion"`
+	ApiVersion string            `json:"apiVersion"`
 	Metadata   map[string]string `json:"metadata"`
 	Data       map[string]string `json:"data"`
 	Type       string            `json:"type"`
@@ -149,7 +150,7 @@ func syncKubernetesSecret(secretName, username, password string) error {
 	//data["ttlExpire"] = time.Now().Add(time.Minute * 2).String()
 
 	secret := &Secret{
-		APIVersion: "v1",
+		ApiVersion: "v1",
 		Data:       data,
 		Kind:       "Secret",
 		Metadata:   metadata,

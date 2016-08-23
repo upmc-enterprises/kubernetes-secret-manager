@@ -4,4 +4,4 @@ metadata:
   name: "sample-app"
 spec:
   secret: "db-credentials"
-  policy: "R/W"
+  policy: "mysql/creds/readonly"
