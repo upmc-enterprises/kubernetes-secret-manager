@@ -4,11 +4,11 @@
 
 The main motivation of this project is to allow dynamic secrets to be requested from a MySQL database and enable a pod inside a Kubernetes cluster to consume those dynamic passwords. The secrets should be tied to a lease so they expire after a pre-defined ttl and the secrets should be rotated.
 
-We also want to do this in a way where the pod does not have to understand a specific secret generation or consumption (e.g. Hashicorp Vault).
+We also want to do this in a way where the pod does not have to understand a specific secret generation tool (e.g. Hashicorp Vault). The application only needs to understand how to read from a file as well as get notified when that file changes.
 
 ## Usage
 
-- Deployment Guide
+- [Deployment Guide](docs/deployment-guide.md)
 
 ## TL;DR
 
