@@ -124,7 +124,7 @@ func processCustomSecret(c CustomSecret, db *bolt.DB) error {
 	foundSecret, _ := getSecretLocal(c.Spec.Secret, db)
 
 	if foundSecret != nil {
-		log.Println("Cert found existing! TTL: ", "")
+		log.Println("Cert found existing! TTL: ", c.Spec.LeaseDuration)
 		return nil
 	}
 
