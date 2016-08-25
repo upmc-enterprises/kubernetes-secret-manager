@@ -12,7 +12,7 @@ spec:
         app: vault
     spec:
       containers:
-      - image: stevesloka/vault
+      - image: stevesloka/vault:0.0.1
         imagePullPolicy: Always
         name: vault
         ports:
