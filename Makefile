@@ -18,7 +18,7 @@ push:
 	docker push $(PREFIX)/kubernetes-secret-manager:$(TAG)
 
 clean:
-	rm -f kubernetes-vault-controller
+	rm -f kubernetes-secret-manager
 
 test: clean
 	godep go test -v --vmodule=*=4
