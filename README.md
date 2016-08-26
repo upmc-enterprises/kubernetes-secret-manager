@@ -24,7 +24,8 @@ YouTube Video (Uploading)
 
 ## TL;DR
 
-1. Deploy Vault (`kubectl create -f deployments/vault.yaml`)
+1. Deploy mysql (`kubectl create -f deployments/mysql.yaml`) 
+- Deploy Vault (`kubectl create -f deployments/vault.yaml`)
 - Configure Vault (`kubectl exec -it <podName> /bin/dumb-init /bin/sh`)
   - Run config script:  `setup-vault.sh`
 - Create custom extension (`kubectl create -f thirdpartyresource/customSecret.yaml`)
