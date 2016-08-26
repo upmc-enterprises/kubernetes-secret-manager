@@ -61,10 +61,11 @@ type CustomSecret struct {
 
 // CustomSecretSpec represents the custom data of the object
 type CustomSecretSpec struct {
-	Policy        string `json:"policy"`
-	Secret        string `json:"secret"`
-	LeaseDuration int
-	LeaseID       string
+	Policy              string    `json:"policy"`
+	Secret              string    `json:"secret"`
+	LeaseDuration       int       `json:"leaseDuration"`
+	LeaseID             string    `json:"leastId"`
+	LeaseExpirationDate time.Time `json:"leaseExpirationDate"`
 }
 
 // CustomSecretList represents a list of CustomSecrets
@@ -200,11 +201,10 @@ func syncKubernetesSecret(secretName, username, password string) error {
 			return err
 		}
 
-		if currentSecret.Data["username"] != secret.Data["username"] || currentSecret.Data["password"] != secret.Data["password"] {
+		if currentSecret.Data["username"] != secret.Data["username"] ||
+			currentSecret.Data["password"] != secret.Data["password"] {
 
 			log.Printf("%s secret out of sync.", secretName)
-			log.Printf("%s", currentSecret.Data["username"])
-			log.Printf("%s", secret.Data["username"])
 
 			currentSecret.Data = secret.Data
 			var b []byte

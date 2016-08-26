@@ -27,6 +27,7 @@ package main
 import (
 	"errors"
 	"log"
+	"math"
 	"sync"
 	"time"
 
@@ -124,7 +125,29 @@ func processCustomSecret(c CustomSecret, db *bolt.DB) error {
 	foundSecret, _ := getSecretLocal(c.Spec.Secret, db)
 
 	if foundSecret != nil {
-		log.Println("Cert found existing! TTL: ", c.Spec.LeaseDuration)
+
+		// Lookup the duration left on the lease, if expiring soon then renew
+		ttlRemaining := time.Since(foundSecret.LeaseExpirationDate)
+
+		if math.Abs(ttlRemaining.Seconds()) <= 60 {
+			// Renew lease!
+			log.Println("Renewing lease for id: ", foundSecret.LeaseID)
+			renewedSecret, err := vltClient.renewVaultLease(foundSecret.LeaseID, foundSecret.LeaseDuration)
+
+			if err != nil {
+				return errors.New("[Processor] Error renewing lease from Vault: " + err.Error())
+			}
+
+			// Update DB
+			c.Spec.LeaseID = renewedSecret.LeaseID
+			c.Spec.LeaseDuration = renewedSecret.LeaseDuration
+			c.Spec.LeaseExpirationDate = time.Now().Add(time.Second * time.Duration(renewedSecret.LeaseDuration))
+			persistSecretLocal(c.Spec.Secret, c.Spec, db)
+		} else {
+			log.Printf("Lease (%s) is ok, skipping renewal! TTL remaining: %f",
+				foundSecret.LeaseID, math.Abs(ttlRemaining.Seconds()))
+		}
+
 		return nil
 	}
 
@@ -140,14 +163,18 @@ func processCustomSecret(c CustomSecret, db *bolt.DB) error {
 	password, _ := secret.Data["password"].(string)
 	c.Spec.LeaseDuration = secret.LeaseDuration
 	c.Spec.LeaseID = secret.LeaseID
+	c.Spec.LeaseExpirationDate = time.Now().Add(time.Second * time.Duration(secret.LeaseDuration))
 
 	err = syncKubernetesSecret(c.Spec.Secret, username, password)
 
 	if err != nil {
+		// Delete the Vault secret since we couldn't persist to k8s
+		vltClient.revokeVaultSecret(secret.LeaseID)
+
 		return errors.New("[Processor] Error creating Kubernetes secret: " + err.Error())
 	}
 
-	// Persist
+	// Persist to DB
 	persistSecretLocal(c.Spec.Secret, c.Spec, db)
 
 	return nil

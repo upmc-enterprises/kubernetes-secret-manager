@@ -14,4 +14,4 @@ metadata:
   name: "app-rw"
 spec:
   secret: "db-full-credentials"
-  policy: "mysql/creds/readonly"
+  policy: "mysql/creds/fullaccess"

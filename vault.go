@@ -60,7 +60,7 @@ func (vc *vaultClient) readVaultSecret(key string) (*vaultapi.Secret, error) {
 	readSecret, err := c.Read(key)
 
 	if err != nil {
-		log.Println("ERROR getting secret: ", err)
+		log.Println("[Vault] Error getting secret: ", err)
 		return nil, err
 	}
 
@@ -73,9 +73,31 @@ func (vc *vaultClient) writeVaultSecret(key string, data map[string]interface{})
 	_, err := c.Write(key, data)
 
 	if err != nil {
-		log.Println("ERROR writing secret: ", err)
+		log.Println("[Vault] Error writing secret: ", err)
 		return err
 	}
 
 	return nil
+}
+
+func (vc *vaultClient) revokeVaultSecret(leaseID string) error {
+	err := vc.client.Sys().Revoke(leaseID)
+
+	if err != nil {
+		log.Println("[Vault] Error revoking secret: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func (vc *vaultClient) renewVaultLease(leaseID string, leaseDuration int) (*vaultapi.Secret, error) {
+	secret, err := vc.client.Sys().Renew(leaseID, leaseDuration)
+
+	if err != nil {
+		log.Println("[Vault] Error renewing secret: ", err)
+		return nil, err
+	}
+
+	return secret, nil
 }
