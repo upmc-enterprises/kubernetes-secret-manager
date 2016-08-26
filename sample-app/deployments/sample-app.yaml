@@ -1,0 +1,70 @@
+apiVersion: "enterprises.upmc.com/v1"
+kind: "Customsecrets"
+metadata:
+  name: "app-ro"
+spec:
+  secret: "db-readonly-credentials"
+  policy: "mysql/creds/readonly"
+
+---
+
+apiVersion: "enterprises.upmc.com/v1"
+kind: "Customsecrets"
+metadata:
+  name: "app-rw"
+spec:
+  secret: "db-full-credentials"
+  policy: "mysql/creds/fullaccess"
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sample-app
+  labels:
+    app: sample-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sample-app
+    spec:
+      containers:
+      - name: sample-app
+        image: stevesloka/kubernetes-secret-manager-sampleapp:1.0.0
+        args:
+          - "-username-secret-file=/secrets/username"
+          - "-password-secret-file=/secrets/password"
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+        resources:
+          limits:
+            memory: "50Mi"
+            cpu: ".1"
+        volumeMounts:
+          - name: custom-secrets
+            mountPath: /secrets
+      volumes:
+        - name: custom-secrets
+          secret:
+            secretName: db-full-credentials
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: sample-app
+  name: sample-app
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: sample-app
+  type: NodePort

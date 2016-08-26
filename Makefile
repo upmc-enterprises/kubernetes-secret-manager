@@ -1,4 +1,4 @@
-# Makefile for the Docker image stevesloka/kubernetes-vault-controller
+# Makefile for the Docker image stevesloka/kubernetes-vault-manager
 # MAINTAINER: Steve Sloka <steve@stevesloka.com>
 
 .PHONY: all build container push clean test
@@ -9,13 +9,13 @@ PREFIX = stevesloka
 all: container
 
 build: main.go
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -installsuffix cgo -o kubernetes-vault-controller --ldflags '-w' ./main.go ./vault.go ./kubernetes.go ./processor.go ./db.go
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -installsuffix cgo -o kubernetes-secret-manager --ldflags '-w' ./main.go ./vault.go ./kubernetes.go ./processor.go ./db.go
 
 container: build
-	docker build -t $(PREFIX)/kubernetes-vault-controller:$(TAG) .
+	docker build -t $(PREFIX)/kubernetes-secret-manager:$(TAG) .
 
 push:
-	docker push $(PREFIX)/kubernetes-vault-controller:$(TAG)
+	docker push $(PREFIX)/kubernetes-secret-manager:$(TAG)
 
 clean:
 	rm -f kubernetes-vault-controller
