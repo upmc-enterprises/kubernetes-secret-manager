@@ -42,7 +42,7 @@ import (
 
 var (
 	dataDir          = "/var/lib/vault-manager"
-	vaultToken       = "4e4a40ad-0d83-e78c-2965-1cedd635f6b4"
+	vaultToken       = "3ca518fb-93b3-5d3c-02ca-38357f2a9b80"
 	vaultURL         = "http://127.0.0.1:8200"
 	syncIntervalSecs = 5
 	vltClient        *vaultClient

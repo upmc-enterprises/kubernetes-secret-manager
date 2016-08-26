@@ -127,10 +127,14 @@ func processCustomSecret(c CustomSecret, db *bolt.DB) error {
 	if foundSecret != nil {
 
 		// Lookup the duration left on the lease, if expiring soon then renew
-		ttlRemaining := time.Since(foundSecret.LeaseExpirationDate)
+		ttlRemaining := foundSecret.LeaseExpirationDate.Sub(time.Now())
 
-		if math.Abs(ttlRemaining.Seconds()) <= 60 {
-			// Renew lease!
+		// If the expiration date is in the past
+		if ttlRemaining.Seconds() <= 0 {
+			// Refresh creds
+			deleteSecretLocal(c.Spec.Secret, db)
+		} else if int(math.Abs(ttlRemaining.Seconds())) <= foundSecret.LeaseDuration/2 {
+			// If ttl remaining is less than 1/2 of ttl lease, renew
 			log.Println("Renewing lease for id: ", foundSecret.LeaseID)
 			renewedSecret, err := vltClient.renewVaultLease(foundSecret.LeaseID, foundSecret.LeaseDuration)
 
@@ -138,17 +142,25 @@ func processCustomSecret(c CustomSecret, db *bolt.DB) error {
 				return errors.New("[Processor] Error renewing lease from Vault: " + err.Error())
 			}
 
-			// Update DB
-			c.Spec.LeaseID = renewedSecret.LeaseID
-			c.Spec.LeaseDuration = renewedSecret.LeaseDuration
-			c.Spec.LeaseExpirationDate = time.Now().Add(time.Second * time.Duration(renewedSecret.LeaseDuration))
-			persistSecretLocal(c.Spec.Secret, c.Spec, db)
-		} else {
-			log.Printf("Lease (%s) is ok, skipping renewal! TTL remaining: %f",
-				foundSecret.LeaseID, math.Abs(ttlRemaining.Seconds()))
-		}
+			// If secret is hitting max ttl, refresh with new secret from Vault
+			if renewedSecret.LeaseDuration < foundSecret.LeaseDuration {
+				deleteSecretLocal(c.Spec.Secret, db)
+			} else {
 
-		return nil
+				// Update DB
+				c.Spec.LeaseID = renewedSecret.LeaseID
+				c.Spec.LeaseDuration = renewedSecret.LeaseDuration
+				c.Spec.LeaseExpirationDate = time.Now().Add(time.Second * time.Duration(renewedSecret.LeaseDuration))
+				persistSecretLocal(c.Spec.Secret, c.Spec, db)
+
+				return nil
+			}
+		} else {
+			log.Printf("Lease (%s) is valid, skipping renewal! TTL remaining: %f",
+				foundSecret.LeaseID, math.Abs(ttlRemaining.Seconds()))
+
+			return nil
+		}
 	}
 
 	// Request credentials from user
