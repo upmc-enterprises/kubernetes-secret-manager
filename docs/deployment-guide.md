@@ -38,12 +38,14 @@ A custom [ThirdPartyResource](https://github.com/kubernetes/kubernetes/blob/rele
 ```
 kubectl create -f thirdpartyresource/customSecret.yaml
 ```
-Once the ThirdPartyResource is created you can create the custom secret object which utilized this new resource:
+Once the ThirdPartyResource is created you can create the custom  object which utilized this new resource as well a the sample application:
 
 ```
-kubectl create -f customSecret/sample-app.yaml
+kubectl create -f sample-app/deployments/sample-app.yaml
 ```
 
-In the sample app yaml file outlines the following config parametes:
+In the sample app yaml file outlines the following config parameters:
 - secret: Name of the secret to create in Kubernetes
 - policy: Policy to request from Vault
+
+_NOTE: Make sure to update the `vault-token` after deploying the vault cluster._
