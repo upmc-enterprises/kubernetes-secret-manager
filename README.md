@@ -16,6 +16,8 @@ The implementation should be done so that the pod does not have to understand a 
 
 This project uses [Vault](https://www.vaultproject.io/) as it's secret distibution tool with the [MySQL Secret Backend](https://www.vaultproject.io/docs/secrets/mysql/index.html) enabled. It's deployed via a custom `ThirdPartyResource` and kubernetes controller which implements the Vault API. Credentials are exposed to pods via simple Kubernetes secrets. The application in the pod is only responsible for refreshing it's application state when those credentials are rotated.
 
+YouTube Video (Uploading)
+
 ## Usage
 
 - [Deployment Guide](docs/deployment-guide.md)
