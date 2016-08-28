@@ -1,5 +1,7 @@
 # Kubernetes Secret Manager
 
+[![Build Status](https://travis-ci.org/upmc-enterprises/kubernetes-secret-manager.svg?branch=travisCI)](https://travis-ci.org/upmc-enterprises/kubernetes-secret-manager)
+
 ## Problem
 
 Typically usernames and passwords to resources are statically tied to a service account. These passwords rarely change and are usually difficult to rotate in an application stack. Sometimes, we're not even sure how many components are utilizing that service account which makes rotate even more difficult and teams end up not changing due to fear of downtime and errors.
