@@ -38,7 +38,18 @@ A custom [ThirdPartyResource](https://github.com/kubernetes/kubernetes/blob/rele
 ```
 kubectl create -f thirdpartyresource/customSecret.yaml
 ```
-Once the ThirdPartyResource is created you can create the custom  object which utilized this new resource as well a the sample application:
+
+### Secret-Manager
+
+The secret manager does all the work of talking to Vault to pull out secrets and managing the life of those secrets.
+
+1. Get the root token of the Vault instance: `kubectl logs -f <vaultPodName>`
+- Copy the root token and paste into the [kubernetes-secret-manager deployment file](deployments/secret-manager.yaml) under the args section named `-vault-token`.
+- Deploy the secret manage: `kubectl create -f deployments/secret-manager.yaml`
+
+### Sample-App
+
+Once the ThirdPartyResource is created you can create the custom object which utilized this new resource as well a the sample application:
 
 ```
 kubectl create -f sample-app/deployments/sample-app.yaml
@@ -48,4 +59,8 @@ In the sample app yaml file outlines the following config parameters:
 - secret: Name of the secret to create in Kubernetes
 - policy: Policy to request from Vault
 
-_NOTE: Make sure to update the `vault-token` after deploying the vault cluster._
+#### Test it out!
+
+To see the sample-app webpage, find the nodeport of the service: `kubectl describe svc sample-app`
+
+Accessing the sample webpage it will print out the username / password to the screen. Use that to connect to MySQL. When the max lease duration expires, the controller will rotate the token in vault and the app should automatically update. 
