@@ -42,7 +42,7 @@ This project uses [Vault](https://www.vaultproject.io/) as it's secret distibuti
 
 ## Thanks!
 
-Special thanks goes out to [Kelsey Hightower](https://twitter.com/kelseyhightower) for the base ideas of this project: ([https://github.com/kelseyhightower/kube-cert-manager]())
+Special thanks goes out to [Kelsey Hightower](https://twitter.com/kelseyhightower) for the base ideas of this project: (https://github.com/kelseyhightower/kube-cert-manager)
 
 ## About
 
