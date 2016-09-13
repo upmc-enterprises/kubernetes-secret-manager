@@ -3,8 +3,8 @@
 
 .PHONY: all build container push clean test
 
-TAG = 1.0.0
-PREFIX = stevesloka
+TAG ?= 1.0.0
+PREFIX ?= stevesloka
 
 all: container
 

@@ -22,6 +22,11 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 */
 
+/*
+    Changes
+    2016-09-12: Lachlan Evenson - Add namespace support
+*/
+
 package main
 
 import (
@@ -34,15 +39,16 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"os"
 )
-
-// TODO: Handle multiple namespaces!
 
 var (
 	apiHost                    = "http://127.0.0.1:8001"
-	customSecretsEndpoint      = "/apis/enterprises.upmc.com/v1/namespaces/default/customsecretses"
-	customSecretsWatchEndpoint = "/apis/enterprises.upmc.com/v1/namespaces/default/customsecretses?watch=true"
-	secretsEndpoint            = "/api/v1/namespaces/default/secrets"
+	// Add namespace support - namespace variable provided by Kubernetes downwards API.
+	namespace	           = os.Getenv("NAMESPACE")
+	customSecretsEndpoint      = fmt.Sprintf("/apis/enterprises.upmc.com/v1/namespaces/%s/customsecretses", namespace)
+	customSecretsWatchEndpoint = fmt.Sprintf("/apis/enterprises.upmc.com/v1/namespaces/%s/customsecretses?watch=true", namespace)
+	secretsEndpoint            = fmt.Sprintf("/api/v1/namespaces/%s/secrets", namespace)
 )
 
 // CustomSecretEvent stores when a secret needs created
