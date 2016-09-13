@@ -46,6 +46,9 @@ var (
 	vaultURL         = "http://127.0.0.1:8200"
 	syncIntervalSecs = 5
 	vltClient        *vaultClient
+	tpr_name 	 = "customsecrets.enterprises.upmc.com"
+	tpr_description  = "Secret which allows for secret creation of MySQL users"
+	tpr_version      = "v1"
 )
 
 func main() {
@@ -75,6 +78,12 @@ func main() {
 	})
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Create ThirdPartyResource
+	err = createKubernetesThirdPartyResource(tpr_name, tpr_description, tpr_version)
+	if err != nil {
+		log.Println(err)
 	}
 
 	// Init vault client
