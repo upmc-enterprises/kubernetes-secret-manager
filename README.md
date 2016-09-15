@@ -31,7 +31,6 @@ This project uses [Vault](https://www.vaultproject.io/) as it's secret distibuti
 - Deploy Vault (`kubectl create -f deployments/vault.yaml`)
 - Configure Vault (`kubectl exec -it <podName> /bin/dumb-init /bin/sh`)
   - Run config script:  `setup-vault.sh`
-- Create custom extension (`kubectl create -f thirdpartyresource/customSecret.yaml`)
 - Deploy Controller:
   - Get the vault root token & copy to `args` section in deployment yaml
   - Create deployment: `kubectl create -f deployments/secret-manager.yaml`

@@ -33,11 +33,7 @@ The `setup-vault.sh` script creates some default policies which are configured i
 
 ### Custom ThirdPartyResource
 
-A custom [ThirdPartyResource](https://github.com/kubernetes/kubernetes/blob/release-1.3/docs/design/extending-api.md) is required to be created by an application.
-
-```
-kubectl create -f thirdpartyresource/customSecret.yaml
-```
+A custom [ThirdPartyResource](https://github.com/kubernetes/kubernetes/blob/release-1.3/docs/design/extending-api.md) is required  and is automatically created by the controller.
 
 ### Secret-Manager
 
@@ -63,4 +59,4 @@ In the sample app yaml file outlines the following config parameters:
 
 To see the sample-app webpage, find the nodeport of the service: `kubectl describe svc sample-app`
 
-Accessing the sample webpage it will print out the username / password to the screen. Use that to connect to MySQL. When the max lease duration expires, the controller will rotate the token in vault and the app should automatically update. 
+Accessing the sample webpage it will print out the username / password to the screen. Use that to connect to MySQL. When the max lease duration expires, the controller will rotate the token in vault and the app should automatically update.
