@@ -25,6 +25,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 /*
     Changes
     2016-09-12: Lachlan Evenson - Add namespace support
+    2016-09-12: Lachlan Evenson - Add TPR creation PR 11
 */
 
 package main
@@ -49,7 +50,17 @@ var (
 	customSecretsEndpoint      = fmt.Sprintf("/apis/enterprises.upmc.com/v1/namespaces/%s/customsecretses", namespace)
 	customSecretsWatchEndpoint = fmt.Sprintf("/apis/enterprises.upmc.com/v1/namespaces/%s/customsecretses?watch=true", namespace)
 	secretsEndpoint            = fmt.Sprintf("/api/v1/namespaces/%s/secrets", namespace)
+	tprEndpoint                =  "/apis/extensions/v1beta1/thirdpartyresources"
 )
+
+//ThirdPartResource in Kubernetes
+type ThirdPartyResource struct {
+	ApiVersion  string            `json:"apiVersion"`
+	Kind        string            `json:"kind"`
+	Description string            `json:"description"`
+	Metadata   map[string]string  `json:"metadata"`
+	Versions   [1]map[string]string `json:"versions,omitempty"`
+}
 
 // CustomSecretEvent stores when a secret needs created
 type CustomSecretEvent struct {
@@ -253,6 +264,53 @@ func syncKubernetesSecret(secretName, username, password string) error {
 			return errors.New("Secrets: Unexpected HTTP status code" + resp.Status)
 		}
 		log.Printf("%s secret created.", secretName)
+		return nil
+	}
+	return nil
+}
+
+// Check if CustomSecrets TPR exists. If not, create
+func createKubernetesThirdPartyResource( tpr_name string, tpr_desc string, tpr_version string) error {
+	metadata := make(map[string]string)
+	metadata["name"] = tpr_name
+
+	data := [1]map[string]string{}
+	aom1 := map[string]string{ "name": tpr_version}
+	data[0] = aom1
+
+	tpr := &ThirdPartyResource{
+		ApiVersion:  "extensions/v1beta1",
+		Kind:        "ThirdPartyResource",
+		Description: tpr_desc,
+		Metadata:    metadata,
+		Versions:    data,
+	}
+
+	resp, _ := http.Get(apiHost + customSecretsEndpoint)
+
+	if resp.StatusCode == 200 {
+		// ThirdPartyResource already exists. Move on
+		log.Printf("ThirdPartyResource %s exists.", tpr_name )
+		return nil
+	}
+
+	if resp.StatusCode == 404 {
+		log.Printf("creating ThirdPartyResource %s", tpr_name)
+		var b []byte
+		body := bytes.NewBuffer(b)
+		err := json.NewEncoder(body).Encode(tpr)
+		if err != nil {
+			return err
+		}
+
+		resp, err := http.Post(apiHost+tprEndpoint, "application/json", body)
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode != 201 {
+			return errors.New("ThirdPartyResource: Unexpected HTTP status code" + resp.Status)
+		}
+		log.Printf("ThirdPartyResource %s created.", tpr_name)
 		return nil
 	}
 	return nil
