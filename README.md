@@ -14,6 +14,10 @@ The main motivation of this project is to allow dynamic secrets to be requested 
 
 The implementation should be done so that the pod does not have to understand a specific secret generation tool (e.g. Hashicorp Vault). The application only needs to understand how to read from a file as well as get notified when that file changes.
 
+## Features
+- Dynamically pull usernames & passwords from a MySQL database
+- Fetch static secrets from Vault and mirror as Kubernetes secrets
+
 ## Implementation
 
 This project uses [Vault](https://www.vaultproject.io/) as it's secret distibution tool with the [MySQL Secret Backend](https://www.vaultproject.io/docs/secrets/mysql/index.html) enabled. It's deployed via a custom `ThirdPartyResource` and kubernetes controller which implements the Vault API. Credentials are exposed to pods via simple Kubernetes secrets. The application in the pod is only responsible for refreshing it's application state when those credentials are rotated.
@@ -35,9 +39,7 @@ This project uses [Vault](https://www.vaultproject.io/) as it's secret distibuti
   - Get the vault root token & copy to `args` section in deployment yaml
   - Create deployment: `kubectl create -f deployments/secret-manager.yaml`
 - Create sample app (`kubectl create -f sample-app/deployments/sample-app.yaml`)
-  - NOTE: This creates 2 custom secrets will in turn request two MySQL accounts from Vault, a readonly and full access account. They will be stored in Kubernetes secrets named: `db-readonly-credentials` && `db-full-credentials`
-
-
+  - NOTE: This creates 2 custom secrets will in turn request two MySQL accounts from Vault, a readonly and full access account. It will also request a static secret from Vault. They will be stored in Kubernetes secrets named: `db-readonly-credentials`, `db-full-credentials`, && `foo-secret`
 
 ## Thanks!
 

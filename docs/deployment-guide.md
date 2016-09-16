@@ -27,6 +27,8 @@ kubectl exec -it <podName> /bin/dumb-init /bin/sh
 > setup-vault.sh
 ```
 
+Running the above command (`setup-vault.sh`) will do a couple things. First it will create a mysql backend and write some policies to allow us to request credentials from the MySQL server. Also, it will write a sample static secret which will let us mirror that secret as a Kubernetes secret.
+
 #### Vault Configuration
 
 The `setup-vault.sh` script creates some default policies which are configured in the file [myapp.hcl](deployments/vault/myapp.hcl).

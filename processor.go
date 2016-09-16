@@ -22,6 +22,11 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 */
 
+/*
+   Changes
+   2016-09-16: Steve Sloka - Enable custom secrets PR 4
+*/
+
 package main
 
 import (
@@ -170,14 +175,11 @@ func processCustomSecret(c CustomSecret, db *bolt.DB) error {
 		return errors.New("[Processor] Error getting secret from Vault: " + err.Error())
 	}
 
-	// Pull out user/password
-	username, _ := secret.Data["username"].(string)
-	password, _ := secret.Data["password"].(string)
 	c.Spec.LeaseDuration = secret.LeaseDuration
 	c.Spec.LeaseID = secret.LeaseID
 	c.Spec.LeaseExpirationDate = time.Now().Add(time.Second * time.Duration(secret.LeaseDuration))
 
-	err = syncKubernetesSecret(c.Spec.Secret, username, password)
+	err = syncKubernetesSecret(c.Spec.Secret, secret.Data)
 
 	if err != nil {
 		// Delete the Vault secret since we couldn't persist to k8s
