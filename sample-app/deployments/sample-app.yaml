@@ -18,6 +18,16 @@ spec:
 
 ---
 
+apiVersion: "enterprises.upmc.com/v1"
+kind: "Customsecrets"
+metadata:
+  name: "foo-secret"
+spec:
+  secret: "foo-secret"
+  policy: "secret/foo"
+
+---
+
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:

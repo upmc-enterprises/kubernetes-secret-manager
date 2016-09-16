@@ -23,9 +23,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 */
 
 /*
-    Changes
-    2016-09-12: Lachlan Evenson - Add namespace support
-    2016-09-12: Lachlan Evenson - Add TPR creation PR 11
+   Changes
+   2016-09-12: Lachlan Evenson - Add namespace support
+   2016-09-12: Lachlan Evenson - Add TPR creation PR 11
+   2016-09-16: Steve Sloka - Enable custom secrets PR 4
 */
 
 package main
@@ -39,27 +40,27 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 	"os"
+	"time"
 )
 
 var (
-	apiHost                    = "http://127.0.0.1:8001"
+	apiHost = "http://127.0.0.1:8001"
 	// Add namespace support - namespace variable provided by Kubernetes downwards API.
-	namespace	           = os.Getenv("NAMESPACE")
+	namespace                  = os.Getenv("NAMESPACE")
 	customSecretsEndpoint      = fmt.Sprintf("/apis/enterprises.upmc.com/v1/namespaces/%s/customsecretses", namespace)
 	customSecretsWatchEndpoint = fmt.Sprintf("/apis/enterprises.upmc.com/v1/namespaces/%s/customsecretses?watch=true", namespace)
 	secretsEndpoint            = fmt.Sprintf("/api/v1/namespaces/%s/secrets", namespace)
-	tprEndpoint                =  "/apis/extensions/v1beta1/thirdpartyresources"
+	tprEndpoint                = "/apis/extensions/v1beta1/thirdpartyresources"
 )
 
 //ThirdPartResource in Kubernetes
 type ThirdPartyResource struct {
-	ApiVersion  string            `json:"apiVersion"`
-	Kind        string            `json:"kind"`
-	Description string            `json:"description"`
-	Metadata   map[string]string  `json:"metadata"`
-	Versions   [1]map[string]string `json:"versions,omitempty"`
+	ApiVersion  string               `json:"apiVersion"`
+	Kind        string               `json:"kind"`
+	Description string               `json:"description"`
+	Metadata    map[string]string    `json:"metadata"`
+	Versions    [1]map[string]string `json:"versions,omitempty"`
 }
 
 // CustomSecretEvent stores when a secret needs created
@@ -184,13 +185,16 @@ func deleteKubernetesSecret(domain string) error {
 	return nil
 }
 
-func syncKubernetesSecret(secretName, username, password string) error {
+func syncKubernetesSecret(secretName string, secretData map[string]interface{}) error {
 	metadata := make(map[string]string)
 	metadata["name"] = secretName
 
+	// Map the Vault Secret Map to a String Map
+	// NOTE: `secretData` is from VaultSecret struct
 	data := make(map[string]string)
-	data["username"] = base64.StdEncoding.EncodeToString([]byte(username))
-	data["password"] = base64.StdEncoding.EncodeToString([]byte(password))
+	for k, v := range secretData {
+		data[k] = base64.StdEncoding.EncodeToString([]byte(v.(string)))
+	}
 
 	secret := &Secret{
 		ApiVersion: "v1",
@@ -270,12 +274,12 @@ func syncKubernetesSecret(secretName, username, password string) error {
 }
 
 // Check if CustomSecrets TPR exists. If not, create
-func createKubernetesThirdPartyResource( tpr_name string, tpr_desc string, tpr_version string) error {
+func createKubernetesThirdPartyResource(tpr_name string, tpr_desc string, tpr_version string) error {
 	metadata := make(map[string]string)
 	metadata["name"] = tpr_name
 
 	data := [1]map[string]string{}
-	aom1 := map[string]string{ "name": tpr_version}
+	aom1 := map[string]string{"name": tpr_version}
 	data[0] = aom1
 
 	tpr := &ThirdPartyResource{
@@ -290,7 +294,7 @@ func createKubernetesThirdPartyResource( tpr_name string, tpr_desc string, tpr_v
 
 	if resp.StatusCode == 200 {
 		// ThirdPartyResource already exists. Move on
-		log.Printf("ThirdPartyResource %s exists.", tpr_name )
+		log.Printf("ThirdPartyResource %s exists.", tpr_name)
 		return nil
 	}
 

@@ -11,3 +11,4 @@ VAULT_ADDR=http://127.0.0.1:8200 vault write mysql/roles/readonly \
    sql="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';"
 VAULT_ADDR=http://127.0.0.1:8200 vault write mysql/roles/fullaccess \
    sql="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT ALL ON *.* TO '{{name}}'@'%';"
+VAULT_ADDR=http://127.0.0.1:8200 vault write secret/foo value=vault-secret author=sethvargo message=shoutout-to-seth!
