@@ -33,10 +33,10 @@ This project uses [Vault](https://www.vaultproject.io/) as it's secret distibuti
 
 1. Deploy mysql (`kubectl create -f deployments/mysql.yaml`)
 - Deploy Vault (`kubectl create -f deployments/vault.yaml`)
-- Configure Vault (`kubectl exec -it <podName> /bin/dumb-init /bin/sh`)
+- Configure Vault (`kubectl exec -it <vaultPodName> /bin/dumb-init /bin/sh`)
   - Run config script:  `setup-vault.sh`
 - Deploy Controller:
-  - Get the vault root token & copy to `args` section in deployment yaml
+  - Get the vault root token & copy to `args` section in deployment yaml (`kubectl logs <vaultPodName>`)
   - Create deployment: `kubectl create -f deployments/secret-manager.yaml`
 - Create sample app (`kubectl create -f sample-app/deployments/sample-app.yaml`)
   - NOTE: This creates 2 custom secrets will in turn request two MySQL accounts from Vault, a readonly and full access account. It will also request a static secret from Vault. They will be stored in Kubernetes secrets named: `db-readonly-credentials`, `db-full-credentials`, && `foo-secret`
