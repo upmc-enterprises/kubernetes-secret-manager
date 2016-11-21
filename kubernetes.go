@@ -54,9 +54,9 @@ var (
 	tprEndpoint                = "/apis/extensions/v1beta1/thirdpartyresources"
 )
 
-//ThirdPartResource in Kubernetes
+// ThirdPartyResource in Kubernetes
 type ThirdPartyResource struct {
-	ApiVersion  string               `json:"apiVersion"`
+	APIVersion  string               `json:"apiVersion"`
 	Kind        string               `json:"kind"`
 	Description string               `json:"description"`
 	Metadata    map[string]string    `json:"metadata"`
@@ -88,7 +88,7 @@ type CustomSecretSpec struct {
 
 // CustomSecretList represents a list of CustomSecrets
 type CustomSecretList struct {
-	ApiVersion string            `json:"apiVersion"`
+	APIVersion string            `json:"apiVersion"`
 	Kind       string            `json:"kind"`
 	Metadata   map[string]string `json:"metadata"`
 	Items      []CustomSecret    `json:"items"`
@@ -97,7 +97,7 @@ type CustomSecretList struct {
 // Secret represents a Kubernetes secret type
 type Secret struct {
 	Kind       string            `json:"kind"`
-	ApiVersion string            `json:"apiVersion"`
+	APIVersion string            `json:"apiVersion"`
 	Metadata   map[string]string `json:"metadata"`
 	Data       map[string]string `json:"data"`
 	Type       string            `json:"type"`
@@ -197,7 +197,7 @@ func syncKubernetesSecret(secretName string, secretData map[string]interface{}) 
 	}
 
 	secret := &Secret{
-		ApiVersion: "v1",
+		APIVersion: "v1",
 		Data:       data,
 		Kind:       "Secret",
 		Metadata:   metadata,
@@ -283,7 +283,7 @@ func createKubernetesThirdPartyResource(tpr_name string, tpr_desc string, tpr_ve
 	data[0] = aom1
 
 	tpr := &ThirdPartyResource{
-		ApiVersion:  "extensions/v1beta1",
+		APIVersion:  "extensions/v1beta1",
 		Kind:        "ThirdPartyResource",
 		Description: tpr_desc,
 		Metadata:    metadata,
