@@ -62,3 +62,13 @@ In the sample app yaml file outlines the following config parameters:
 To see the sample-app webpage, find the nodeport of the service: `kubectl describe svc sample-app`
 
 Accessing the sample webpage it will print out the username / password to the screen. Use that to connect to MySQL. When the max lease duration expires, the controller will rotate the token in vault and the app should automatically update.
+
+### Static Secrets
+
+It's possible to pull secrets using the [Generic backend](https://www.vaultproject.io/docs/secrets/generic/). 
+
+1. Export your vault token: `export VAULT_TOKEN=b3b8e136-18e8-c286-5c80-e9d62f790814`
+2. Post to vault a secret: `curl -X POST -H "X-Vault-Token:$VAULT_TOKEN" -d '{"bar":"baz"}' http://192.168.64.25:30619/v1/secret/foo`
+3. Verify: `curl -X GET -H "X-Vault-Token:$VAULT_TOKEN" http://192.168.64.25:30619/v1/secret/foo | jq .`
+4. Deploy app: `kubectl create -f sample-app/deployments/static-secrets.yaml
+5. Verify: `kubectl exec -it <podname> cat /secrets/bar` (Outputs: `baz`)
